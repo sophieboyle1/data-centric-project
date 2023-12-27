@@ -31,7 +31,7 @@ CREATE TABLE `product` (
   `productdesc` varchar(50) DEFAULT NULL,
   `supplier` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`PID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -59,7 +59,7 @@ CREATE TABLE `product_store` (
   KEY `SID` (`sid`),
   CONSTRAINT `product_store_ibfk_1` FOREIGN KEY (`pid`) REFERENCES `product` (`pid`),
   CONSTRAINT `product_store_ibfk_2` FOREIGN KEY (`sid`) REFERENCES `store` (`sid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -85,7 +85,7 @@ CREATE TABLE `store` (
   `mgrid` varchar(4) DEFAULT NULL,
   PRIMARY KEY (`sid`),
   UNIQUE KEY `mgrid` (`mgrid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
