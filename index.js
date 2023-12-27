@@ -1,10 +1,19 @@
-// Import necessary modules
-var express = require('express');
-var os = require("os");
-var mysql = require('mysql');
+const express = require('express');
+const { check, validationResult } = require('express-validator');
+const bodyParser = require('body-parser');
+const mysql = require('mysql');
+const { MongoClient, ReturnDocument } = require('mongodb');
+const cors = require('cors');
+const path = require('path');
+const os = require("os"); // Added the os module
+const app = express();
 
-// Initialize Express app
-var app = express();
+const dbmongo = require('./dbmongo');
+
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
 
 // Middleware to count and log requests
 app.use((req, res, next) => {
@@ -53,9 +62,46 @@ app.get('/products', (req, res) => {
 });
 
 app.get('/managers', (req, res) => {
-    res.send('<h1>Managers</h1><br/><a href="/">Home</a>');
-    // Implement MongoDB connection and fetch managers data
+    DatabaseMongo.findAll()
+        .then((data)=>{
+            // array = data
+            html = '<link rel="stylesheet" type="text/css" href="../css/index.css"/><h1>Managers</h1> <a href="/managers/add">Add Manager (MongoDB)</a> <table border="1" cellspacing="0"><tr><th>Manager ID</th><th>Name</th><th>Salary</th>'
+            var dataLength = data.length;
+
+            for(var i = 0; i < dataLength; i++) {
+                html = html + '<tr><td>' + data[i]['_id'] + '</td> <td>' + data[i]['name'] + '</td> <td>' + data[i]['salary'] + '</td></tr>'
+            }
+            html = html + '</table> <a href="/">Home</a>'
+            res.send(html)
+        })    
+})
+
+app.get('/managers/add', (req, res) => {
+    var path = __dirname + '/views/addManager.ejs'; // Updated view file name
+    console.log(path);
+    res.render(path);
 });
+
+app.post("/managers/add/add", (req, res) => {
+    // Access form data using the new input names
+    const managerID = req.body.managerID;
+    const managerName = req.body.managerName;
+    const managerSalary = req.body.managerSalary;
+
+    DatabaseMongo.addEmployee(managerID, managerName, managerSalary)
+        .then(() => {
+            console.log('Manager added successfully');
+            // Redirect or render a response
+            var path = __dirname + '/views/addManager.ejs'; // Updated view file name
+            res.render(path);
+        })
+        .catch((error) => {
+            console.error('Error adding manager:', error);
+            // Handle the error and render an appropriate response
+            res.status(500).send('Error adding manager');
+        });
+});
+
 
 // Start the server
 app.listen(3000, () => {
