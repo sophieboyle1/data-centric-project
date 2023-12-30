@@ -77,50 +77,37 @@ app.get('/stores/edit/:sid', (req, res) => {
 app.post('/stores/edit/:sid', (req, res) => {
     const { location, mgrid } = req.body;
     const sid = req.params.sid;
-    // You should perform your validation here
-    const errors = []; // Assume this array will contain your validation errors
+    let errors = [];
 
-    if (errors.length) {
-        // Re-render the form with errors and the current input values
-        res.render('editStore', { store: { sid, location, mgrid }, errors });
+    // Validate the location field
+    if (!location || location.length < 1) {
+        errors.push({ msg: 'Location must be at least 1 character.' });
+    }
+
+    // If there are any errors, re-render the form with the errors and current input values
+    if (errors.length > 0) {
+        res.render('editStore', { 
+            store: { sid, location, mgrid }, 
+            errors: errors 
+        });
     } else {
+        // No errors, proceed with updating the store in the database
         connection.query(
             'UPDATE store SET location = ?, mgrid = ? WHERE sid = ?',
             [location, mgrid, sid],
             (err, result) => {
                 if (err) {
+                    // If an error occurs when updating the database, log it and send a server error response
                     console.error('Error updating store:', err);
                     res.status(500).send('Error updating store');
-                    return;
+                } else {
+                    // If update is successful, redirect to the stores list
+                    res.redirect('/stores');
                 }
-                res.redirect('/stores'); // Redirect to the stores list on successful update
             }
         );
     }
 });
-
-
-app.post('/stores/edit/:sid', async (req, res) => {
-    const { location, mgrid } = req.body;
-    const sid = req.params.sid;
-    const errors = []; // Assume you have a validation function to add errors
-
-    // Perform your validation checks here and add any errors to the errors array
-    // Example: if (location.length === 0) errors.push({ msg: 'Location must be at least 1 character' });
-
-    if (errors.length) {
-        res.render('editStore', { store: { sid, location, mgrid }, errors });
-    } else {
-        try {
-            const [result] = await connection.execute('UPDATE store SET location = ?, mgrid = ? WHERE sid = ?', [location, mgrid, sid]);
-            res.redirect('/stores');
-        } catch (err) {
-            console.error('Error updating store:', err);
-            res.status(500).send('Error updating store');
-        }
-    }
-});
-
 
 // products 
 app.get('/products', (req, res) => {
