@@ -198,18 +198,17 @@ app.get("/products/delete/:pid", (req, res) => {
 // managers
 app.get('/managers', (req, res) => {
     dbmongo.findAll()
-        .then((data)=>{
-            // array = data
-            html = '<link rel="stylesheet" type="text/css" href="../css/index.css"/><h1>Managers</h1> <a href="/managers/add">Add Manager (MongoDB)</a> <table border="1" cellspacing="0"><tr><th>Manager ID</th><th>Name</th><th>Salary</th>'
-            var dataLength = data.length;
+        .then((managers) => {
+            console.log(managers); // debug
+            // Render the 'managers.ejs' view with the managers data
+            res.render('managers', { managers });
+        })
+        .catch((error) => {
+            console.error('Error fetching managers:', error);
+            res.status(500).send('Error fetching managers');
+        });
+});
 
-            for(var i = 0; i < dataLength; i++) {
-                html = html + '<tr><td>' + data[i]['_id'] + '</td> <td>' + data[i]['name'] + '</td> <td>' + data[i]['salary'] + '</td></tr>'
-            }
-            html = html + '</table> <a href="/">Home</a>'
-            res.send(html)
-        })    
-})
 
 app.get('/managers/add', (req, res) => {
     var path = __dirname + '/views/addManager.ejs'; // Updated view file name
@@ -226,9 +225,8 @@ app.post("/managers/add/add", (req, res) => {
     dbmongo.addEmployee(managerID, managerName, managerSalary)
         .then(() => {
             console.log('Manager added successfully');
-            // Redirect or render a response
-            var path = __dirname + '/views/addManager.ejs';
-            res.render(path);
+            // Redirect to the managers list
+            res.redirect('/managers');
         })
         .catch((error) => {
             console.error('Error adding manager:', error);
@@ -236,7 +234,6 @@ app.post("/managers/add/add", (req, res) => {
             res.status(500).send('Error adding manager');
         });
 });
-
 
 // Start the server
 app.listen(3000, () => {
