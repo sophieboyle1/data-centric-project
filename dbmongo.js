@@ -25,20 +25,18 @@ const findAll = function () {
     });
 };
 
-const addEmployee = function (id, nm, sal) {
-    return new Promise((resolve, reject) => {
-        const details = {
-            _id: id,
-            name: nm,
-            salary: sal
-        };
-        coll.insertOne(details)
-            .then(result => {
-                resolve(result);
-            })
-            .catch(error => {
-                reject(error);
-            });
+
+const addEmployee = async function (id, nm, sal) {
+    // Check if the manager already exists
+    const managerExists = await coll.findOne({ _id: id });
+    if (managerExists) {
+        throw new Error('Manager ID already exists');
+    }
+    // Insert the new manager document
+    return coll.insertOne({
+        _id: id,
+        name: nm,
+        salary: parseFloat(sal)
     });
 };
 

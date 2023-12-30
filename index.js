@@ -130,11 +130,11 @@ app.post('/stores/edit/:sid', validateManagerID, async (req, res) => {
 
     // If there are any errors, re-render the form with the errors and current input values
     if (errors.length > 0) {
-        return res.render('editStore', { 
-            store: { sid, location, mgrid }, 
+        return res.render('editStore', {
+            store: { sid, location, mgrid },
             errors: errors.array() // Pass errors as an array
         });
-    }else {
+    } else {
         // No errors, proceed with updating the store in the database
         connection.query(
             'UPDATE store SET location = ?, mgrid = ? WHERE sid = ?',
@@ -211,28 +211,45 @@ app.get('/managers', (req, res) => {
 
 
 app.get('/managers/add', (req, res) => {
+    res.render('addManager', { errors: [] });
     var path = __dirname + '/views/addManager.ejs'; // Updated view file name
     console.log(path);
     res.render(path);
 });
 
-app.post("/managers/add/add", (req, res) => {
-    // Access form data using the new input names
-    const managerID = req.body.managerID;
-    const managerName = req.body.managerName;
-    const managerSalary = req.body.managerSalary;
-
-    dbmongo.addEmployee(managerID, managerName, managerSalary)
-        .then(() => {
-            console.log('Manager added successfully');
-            // Redirect to the managers list
-            res.redirect('/managers');
-        })
-        .catch((error) => {
-            console.error('Error adding manager:', error);
-            // Handle the error and render an appropriate response
-            res.status(500).send('Error adding manager');
+app.post('/managers/add/add', [
+    check('managerID')
+        .trim()
+        .isLength({ min: 4, max: 4 }).withMessage('Manager ID must be 4 characters'),
+    check('managerName')
+        .trim()
+        .isLength({ min: 5 }).withMessage('Name must be at least 5 characters'),
+    check('managerSalary')
+        .isFloat({ min: 30000, max: 70000 }).withMessage('Salary must be between 30,000 and 70,000')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.render('addManager', {
+            errors: errors.array(),
+            managerID: req.body.managerID,
+            managerName: req.body.managerName,
+            managerSalary: req.body.managerSalary
         });
+    }
+
+    try {
+        // Attempt to add the new manager
+        await dbmongo.addEmployee(req.body.managerID, req.body.managerName, req.body.managerSalary);
+        res.redirect('/managers');
+    } catch (error) {
+        // Handle the error
+        res.render('addManager', {
+            errors: [{ msg: error.message }],
+            managerID: req.body.managerID,
+            managerName: req.body.managerName,
+            managerSalary: req.body.managerSalary
+        });
+    }
 });
 
 // Start the server
