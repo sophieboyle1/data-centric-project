@@ -62,7 +62,7 @@ app.get('/products', (req, res) => {
 });
 
 app.get('/managers', (req, res) => {
-    DatabaseMongo.findAll()
+    dbmongo.findAll()
         .then((data)=>{
             // array = data
             html = '<link rel="stylesheet" type="text/css" href="../css/index.css"/><h1>Managers</h1> <a href="/managers/add">Add Manager (MongoDB)</a> <table border="1" cellspacing="0"><tr><th>Manager ID</th><th>Name</th><th>Salary</th>'
@@ -88,11 +88,11 @@ app.post("/managers/add/add", (req, res) => {
     const managerName = req.body.managerName;
     const managerSalary = req.body.managerSalary;
 
-    DatabaseMongo.addEmployee(managerID, managerName, managerSalary)
+    dbmongo.addEmployee(managerID, managerName, managerSalary)
         .then(() => {
             console.log('Manager added successfully');
             // Redirect or render a response
-            var path = __dirname + '/views/addManager.ejs'; // Updated view file name
+            var path = __dirname + '/views/addManager.ejs';
             res.render(path);
         })
         .catch((error) => {
