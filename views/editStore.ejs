@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        input[type="text"],
+        input[type="submit"] {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Added for consistent sizing */
+        }
+        input[type="submit"] {
+            background-color: #5c85d6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        input[type="submit"]:hover {
+            background-color: #3a5da0;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #5c85d6;
+            text-align: center;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Store</h1>
+        <form action="/stores/edit/<%= store.sid %>" method="post">
+            <label for="sid">SID</label>
+            <input type="text" id="sid" name="sid" value="<%= store.sid %>" readonly>
+        
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="<%= store.location %>">
+        
+            <label for="mgrid">Manager ID</label>
+            <input type="text" id="mgrid" name="mgrid" value="<%= store.mgrid %>">
+        
+            <input type="submit" value="Update">
+        </form>
+        <a href="/">Home</a>
+    </div>
+</body>
+</html>
+

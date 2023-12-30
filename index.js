@@ -57,11 +57,79 @@ app.get('/stores', (req, res) => {
     });
 });
 
+// Edit store
+app.get('/stores/edit/:sid', (req, res) => {
+    const sid = req.params.sid;
+    connection.query('SELECT * FROM store WHERE sid = ?', [sid], (err, rows) => {
+        if (err) {
+            console.error('Error fetching store:', err);
+            res.status(500).send('Error fetching store');
+            return;
+        }
+        if (rows.length) {
+            res.render('editStore', { store: rows[0], errors: null });
+        } else {
+            res.status(404).send('Store not found');
+        }
+    });
+});
+
+app.post('/stores/edit/:sid', (req, res) => {
+    const { location, mgrid } = req.body;
+    const sid = req.params.sid;
+    // You should perform your validation here
+    const errors = []; // Assume this array will contain your validation errors
+
+    if (errors.length) {
+        // Re-render the form with errors and the current input values
+        res.render('editStore', { store: { sid, location, mgrid }, errors });
+    } else {
+        connection.query(
+            'UPDATE store SET location = ?, mgrid = ? WHERE sid = ?',
+            [location, mgrid, sid],
+            (err, result) => {
+                if (err) {
+                    console.error('Error updating store:', err);
+                    res.status(500).send('Error updating store');
+                    return;
+                }
+                res.redirect('/stores'); // Redirect to the stores list on successful update
+            }
+        );
+    }
+});
+
+
+app.post('/stores/edit/:sid', async (req, res) => {
+    const { location, mgrid } = req.body;
+    const sid = req.params.sid;
+    const errors = []; // Assume you have a validation function to add errors
+
+    // Perform your validation checks here and add any errors to the errors array
+    // Example: if (location.length === 0) errors.push({ msg: 'Location must be at least 1 character' });
+
+    if (errors.length) {
+        res.render('editStore', { store: { sid, location, mgrid }, errors });
+    } else {
+        try {
+            const [result] = await connection.execute('UPDATE store SET location = ?, mgrid = ? WHERE sid = ?', [location, mgrid, sid]);
+            res.redirect('/stores');
+        } catch (err) {
+            console.error('Error updating store:', err);
+            res.status(500).send('Error updating store');
+        }
+    }
+});
+
+
+// products 
 app.get('/products', (req, res) => {
     res.send('<h1>Products</h1><br/><a href="/">Home</a>');
     // Implement the functionality to fetch and display products
 });
 
+
+// managers
 app.get('/managers', (req, res) => {
     dbmongo.findAll()
         .then((data)=>{
