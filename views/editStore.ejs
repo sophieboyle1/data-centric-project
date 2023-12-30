@@ -17,6 +17,18 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+        .instructions {
+            background-color: #e9ecef;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            border-radius: 5px;
+        }
+        .instructions p {
+            margin: 0;
+            padding: 5px 0;
+        }
         h1 {
             color: #333;
             font-size: 24px;
@@ -64,6 +76,11 @@
 <body>
     <div class="container">
         <h1>Edit Store</h1>
+        <div class="instructions">
+            <p>SID is not editable.</p>
+            <p>Location should be a minimum of 1 character.</p>
+            <p>Manager ID should be 4 characters, should not be assigned to another Store, and should exist in MongoDB.</p>
+        </div>
         <% if (errors && errors.length > 0) { %>
             <div style="color: red;">
                 <ul>
