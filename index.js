@@ -44,14 +44,15 @@ app.get('/', (req, res) => {
     res.send('<ul><li><a href="/stores">Stores</a></li><li><a href="/products">Products</a></li><li><a href="/managers">Managers (Mongo DB)</a></li></ul>');
 });
 
+// Stores
 app.get('/stores', (req, res) => {
     connection.query('SELECT * FROM store', (err, rows) => {
         if (err) {
             console.error('Error in MySQL query:', err);
             res.status(500).send('Error fetching stores data');
         } else {
-            // Respond with the store data in JSON format
-            res.json(rows);
+            // Render the 'stores.ejs' view with the stores data
+            res.render('stores', { stores: rows });
         }
     });
 });
