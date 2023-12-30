@@ -40,4 +40,9 @@ const addEmployee = async function (id, nm, sal) {
     });
 };
 
-module.exports = { findAll, addEmployee };
+const findManagerByID = async function (managerID) {
+    const manager = await coll.findOne({ _id: managerID });
+    return manager;
+};
+
+module.exports = { findAll, addEmployee, findManagerByID };

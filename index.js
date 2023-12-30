@@ -109,48 +109,67 @@ const validateManagerID = [
     }),
 ];
 
-
-app.post('/stores/edit/:sid', validateManagerID, async (req, res) => {
-    const { location, mgrid } = req.body;
-    const sid = req.params.sid;
-
+// Edit store POST route
+app.post('/stores/edit/:sid', [
+    // Validation for location to ensure it has at least one character
+    check('location').isLength({ min: 1 }).withMessage('Location must be at least 1 character.'),
+    // Validation for Manager ID to ensure it's 4 characters long
+    check('mgrid').isLength({ min: 4, max: 4 }).withMessage('Manager ID must be 4 characters long'),
+], async (req, res) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
-        // If there are validation errors, render the 'editStore' page with error messages
+        // If there are express-validator validation errors, render the 'editStore' page with error messages
         return res.render('editStore', {
-            store: { sid, location, mgrid },
-            errors: errors.array(), // Pass errors as an array
+            store: req.body, // Pass the submitted store details back for user correction
+            errors: errors.array()
         });
     }
 
-    // Validate the location field
-    if (!location || location.length < 1) {
-        errors.push({ msg: 'Location must be at least 1 character.' });
-    }
+    // Additional validation to ensure Manager ID is not assigned to another store and exists in MongoDB
+    try {
+        const sid = req.params.sid;
+        const { location, mgrid } = req.body;
 
-    // If there are any errors, re-render the form with the errors and current input values
-    if (errors.length > 0) {
-        return res.render('editStore', {
-            store: { sid, location, mgrid },
-            errors: errors.array() // Pass errors as an array
-        });
-    } else {
-        // No errors, proceed with updating the store in the database
-        connection.query(
-            'UPDATE store SET location = ?, mgrid = ? WHERE sid = ?',
-            [location, mgrid, sid],
-            (err, result) => {
+        // Check if Manager ID is already assigned to another Store in SQL database
+        const sqlQueryResult = await new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM store WHERE mgrid = ? AND sid != ?', [mgrid, sid], (err, rows) => {
                 if (err) {
-                    // If an error occurs when updating the database, log it and send a server error response
-                    console.error('Error updating store:', err);
-                    res.status(500).send('Error updating store');
+                    reject(err);
+                } else if (rows.length > 0) {
+                    reject(new Error('Manager ID is already assigned to another Store'));
                 } else {
-                    // If update is successful, redirect to the stores list
-                    res.redirect('/stores');
+                    resolve(rows);
                 }
-            }
-        );
+            });
+        });
+
+        // Check if Manager ID exists in MongoDB
+        const managerExists = await dbmongo.findManagerByID(mgrid);
+        if (!managerExists) {
+            throw new Error('Manager ID does not exist in MongoDB');
+        }
+
+        // If all validations pass, proceed with updating the store details in SQL database
+        await new Promise((resolve, reject) => {
+            connection.query('UPDATE store SET location = ?, mgrid = ? WHERE sid = ?', [location, mgrid, sid], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+        // If update is successful, redirect to the stores list
+        res.redirect('/stores');
+
+    } catch (error) {
+        // If an error occurs, handle it by re-rendering the form with the error message
+        console.error('Error updating store:', error);
+        res.render('editStore', {
+            store: req.body,
+            errors: [{ msg: error.message }]
+        });
     }
 });
 
