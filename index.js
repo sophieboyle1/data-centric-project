@@ -1,3 +1,7 @@
+// sophie boyle
+// G00410444
+// https://github.com/sophieboyle1/data-centric-project
+
 const express = require('express');
 const { check, validationResult } = require('express-validator');
 const bodyParser = require('body-parser');
