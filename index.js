@@ -74,10 +74,54 @@ app.get('/stores/edit/:sid', (req, res) => {
     });
 });
 
-app.post('/stores/edit/:sid', (req, res) => {
+// Custom validation function for Manager ID
+const validateManagerID = [
+    // Check if Manager ID is 4 characters long
+    check('mgrid').isLength({ min: 4, max: 4 }).withMessage('Manager ID must be 4 characters long'),
+
+    // Check if Manager ID is not assigned to another Store
+    check('mgrid').custom(async (value, { req }) => {
+        const sid = req.params.sid;
+        // Query your MySQL database to check if the Manager ID is assigned to another Store
+        const queryResult = await new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM store WHERE mgrid = ? AND sid != ?', [value, sid], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+        if (queryResult.length > 0) {
+            // Return a validation error with a custom message
+            throw new Error('Manager ID is already assigned to another Store');
+        }
+    }),
+
+    // Check if Manager ID exists in MongoDB
+    check('mgrid').custom(async (value) => {
+        // Query MongoDB to check if the Manager ID exists
+        const manager = await dbmongo.findManagerByID(value);
+        if (!manager) {
+            throw new Error('Manager ID does not exist in MongoDB');
+        }
+    }),
+];
+
+
+app.post('/stores/edit/:sid', validateManagerID, async (req, res) => {
     const { location, mgrid } = req.body;
     const sid = req.params.sid;
-    let errors = [];
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        // If there are validation errors, render the 'editStore' page with error messages
+        return res.render('editStore', {
+            store: { sid, location, mgrid },
+            errors: errors.array(), // Pass errors as an array
+        });
+    }
 
     // Validate the location field
     if (!location || location.length < 1) {
@@ -86,11 +130,11 @@ app.post('/stores/edit/:sid', (req, res) => {
 
     // If there are any errors, re-render the form with the errors and current input values
     if (errors.length > 0) {
-        res.render('editStore', { 
+        return res.render('editStore', { 
             store: { sid, location, mgrid }, 
-            errors: errors 
+            errors: errors.array() // Pass errors as an array
         });
-    } else {
+    }else {
         // No errors, proceed with updating the store in the database
         connection.query(
             'UPDATE store SET location = ?, mgrid = ? WHERE sid = ?',
