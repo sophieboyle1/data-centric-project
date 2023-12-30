@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit Store</title>
+    <!-- Internal CSS for styling the page -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -49,7 +50,7 @@
             margin-top: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-sizing: border-box; /* Added for consistent sizing */
+            box-sizing: border-box;
         }
         input[type="submit"] {
             background-color: #5c85d6;
@@ -74,6 +75,7 @@
     </style>
 </head>
 <body>
+    <!-- Main container for content -->
     <div class="container">
         <h1>Edit Store</h1>
         <div class="instructions">
@@ -81,6 +83,7 @@
             <p>Location should be a minimum of 1 character.</p>
             <p>Manager ID should be 4 characters, should not be assigned to another Store, and should exist in MongoDB.</p>
         </div>
+        <!-- Error message section -->
         <% if (errors && errors.length > 0) { %>
             <div style="color: red;">
                 <ul>
@@ -90,6 +93,7 @@
                 </ul>
             </div>
         <% } %>
+        <!-- Form for editing a store -->
         <form action="/stores/edit/<%= store.sid %>" method="post">
             <label for="sid">SID</label>
             <input type="text" id="sid" name="sid" value="<%= store.sid %>" readonly>

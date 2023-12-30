@@ -8,9 +8,12 @@ const path = require('path');
 const os = require("os"); // Added the os module
 const app = express();
 
+// Custom module for MongoDB operations
 const dbmongo = require('./dbmongo');
 
+// Set up EJS as the view engine
 app.set('view engine', 'ejs');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
@@ -44,7 +47,6 @@ app.get('/', (req, res) => {
     res.render('home');
 });
 
-
 // Stores
 app.get('/stores', (req, res) => {
     connection.query('SELECT * FROM store', (err, rows) => {
@@ -61,6 +63,7 @@ app.get('/stores', (req, res) => {
 // Edit store
 app.get('/stores/edit/:sid', (req, res) => {
     const sid = req.params.sid;
+    // Query the database for the store with the given SID
     connection.query('SELECT * FROM store WHERE sid = ?', [sid], (err, rows) => {
         if (err) {
             console.error('Error fetching store:', err);
@@ -186,19 +189,20 @@ app.get('/products', (req, res) => {
     });
 });
 
-
 // Delete product route
 app.get("/products/delete/:pid", (req, res) => {
     const pid = req.params.pid;
 
+    // SQL query to select the product from product_store table
     const selectQuery = 'SELECT * FROM product_store WHERE pid = ?';
+    // Execute the query to check if the product is present in any store
     connection.query(selectQuery, [pid], (err, rows) => {
         if (err) {
             console.error('Error checking product:', err);
             res.status(500).send('Error during deletion process');
             return;
         }
-
+        // Check if the product is not present in any store
         if (rows.length === 0) {
             const deleteQuery = 'DELETE FROM product WHERE pid = ?';
             connection.query(deleteQuery, [pid], (err, result) => {
@@ -219,7 +223,6 @@ app.get("/products/delete/:pid", (req, res) => {
 app.get('/managers', (req, res) => {
     dbmongo.findAll()
         .then((managers) => {
-            console.log(managers); // debug
             // Render the 'managers.ejs' view with the managers data
             res.render('managers', { managers });
         })
@@ -228,7 +231,6 @@ app.get('/managers', (req, res) => {
             res.status(500).send('Error fetching managers');
         });
 });
-
 
 app.get('/managers/add', (req, res) => {
     res.render('addManager', { errors: [] });

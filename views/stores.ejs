@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Stores</title>
+    <!-- Internal CSS for styling the page -->
     <style>
         table {
             width: 100%;
@@ -30,6 +31,7 @@
 <body>
     <h1>Stores</h1>
     <a href="/stores/add">Add Store</a>
+    <!-- Table to display store data -->
     <table>
         <tr>
             <th>SID</th>
@@ -37,6 +39,7 @@
             <th>Manager ID</th>
             <th>Action</th>
         </tr>
+        <!-- Loop through each store and display their data in table rows -->
         <% stores.forEach(function(store) { %>
             <tr>
                 <td><%= store.sid %></td>

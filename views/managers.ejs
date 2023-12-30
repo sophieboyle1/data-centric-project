@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Managers</title>
+    <!-- Internal CSS for styling the page -->
     <style>
         table {
             width: 100%;
@@ -30,6 +31,7 @@
             <th>Name</th>
             <th>Salary</th>
         </tr>
+        <!-- Loop through each manager and display their data in a table row -->
         <% managers.forEach(function(manager) { %>
             <tr>
                 <td><%= manager._id %></td>

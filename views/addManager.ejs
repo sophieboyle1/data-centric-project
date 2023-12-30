@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Manager</title>
+    <!-- Internal CSS for styling the page -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -66,6 +67,7 @@
     </style>
 </head>
 <body>
+    <!-- Main container for content -->
     <div class="container">
         <h1>Add Manager</h1>
         <div class="conditions">
@@ -73,7 +75,7 @@
             <p>Name must be more than 5 characters</p>
             <p>Salary must be between 30,000 and 70,000</p>
         </div>
-
+        <!-- Error message section -->
         <% if (errors && errors.length > 0) { %>
             <div class="error-message">
                 <ul>
@@ -83,7 +85,7 @@
                 </ul>
             </div>
         <% } %>
-
+        <!-- Form for adding a manager -->
         <form action="/managers/add/add" method="post">
             <div class="form-group">
                 <label for="managerID">Manager ID</label>

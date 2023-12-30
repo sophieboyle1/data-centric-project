@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
+    <!-- Internal CSS for styling the page -->
     <style>
         table {
             width: 100%;
@@ -26,6 +27,7 @@
 </head>
 <body>
     <h1>Products</h1>
+    <!-- Table to display product data -->
     <table>
         <tr>
             <th>Product ID</th>
@@ -35,6 +37,7 @@
             <th>Price</th>
             <th>Action</th>
         </tr>
+        <!-- Loop through each product and display their data in table rows -->
         <% products.forEach(function(product) { %>
             <tr>
                 <td><%= product.pid %></td>
