@@ -39,10 +39,11 @@ connection.connect(err => {
     console.log('Connected to MySQL');
 });
 
-// Define routes
+// homepage
 app.get('/', (req, res) => {
-    res.send('<ul><li><a href="/stores">Stores</a></li><li><a href="/products">Products</a></li><li><a href="/managers">Managers (Mongo DB)</a></li></ul>');
+    res.render('home');
 });
+
 
 // Stores
 app.get('/stores', (req, res) => {
