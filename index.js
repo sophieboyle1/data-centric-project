@@ -153,12 +153,47 @@ app.post('/stores/edit/:sid', validateManagerID, async (req, res) => {
     }
 });
 
-// products 
+// products route
 app.get('/products', (req, res) => {
-    res.send('<h1>Products</h1><br/><a href="/">Home</a>');
-    // Implement the functionality to fetch and display products
+    connection.query('SELECT p.pid, p.productdesc, s.sid, s.location, sct.Price FROM product p LEFT JOIN product_store sct ON p.pid = sct.pid LEFT JOIN store s ON sct.sid = s.sid;', (err, products) => {
+        if (err) {
+            console.error('Error fetching products:', err);
+            res.status(500).send('Error fetching products data');
+        } else {
+            // Render the 'products.ejs' view with the products data
+            res.render('products', { products });
+        }
+    });
 });
 
+
+// Delete product route
+app.get("/products/delete/:pid", (req, res) => {
+    const pid = req.params.pid;
+
+    const selectQuery = 'SELECT * FROM product_store WHERE pid = ?';
+    connection.query(selectQuery, [pid], (err, rows) => {
+        if (err) {
+            console.error('Error checking product:', err);
+            res.status(500).send('Error during deletion process');
+            return;
+        }
+
+        if (rows.length === 0) {
+            const deleteQuery = 'DELETE FROM product WHERE pid = ?';
+            connection.query(deleteQuery, [pid], (err, result) => {
+                if (err) {
+                    console.error('Error deleting product:', err);
+                    res.status(500).send('Error during deletion process');
+                } else {
+                    res.redirect('/products');
+                }
+            });
+        } else {
+            res.send('<h1>Error Message</h1><br/><br/> <h1>' + pid + ' is currently in stores and cannot be deleted</h1> <a href="/">Home</a>');
+        }
+    });
+});
 
 // managers
 app.get('/managers', (req, res) => {
